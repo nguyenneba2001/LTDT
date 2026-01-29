@@ -1,0 +1,74 @@
+#include <stdio.h>
+
+#define MAX_EDGES 500
+
+// Cấu trúc Edge và Graph theo đề bài
+typedef struct {
+    int x, y;
+} Edge;
+
+typedef struct {
+    int n, m;
+    Edge edges[MAX_EDGES];
+} Graph;
+
+// Hàm khởi tạo đồ thị
+void init_graph(Graph* G, int n) {
+    G->n = n;
+    G->m = 0;
+}
+
+// Hàm thêm cung vào đồ thị
+void add_edge(Graph* G, int x, int y) {
+    if (x < 1 || x > G->n || y < 1 || y > G->n) {
+        return;
+    }
+    G->edges[G->m].x = x;
+    G->edges[G->m].y = y;
+    G->m++;
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Bỏ dấu chú thích khi chạy thử file
+
+    Graph G;
+    int n, m, u, v;
+    
+    // Đọc n và m
+    if (scanf("%d%d", &n, &m) != 2) return 0;
+    
+    init_graph(&G, n);
+    
+    // Đọc m cung
+    for (int e = 0; e < m; e++) {
+        scanf("%d%d", &u, &v);
+        add_edge(&G, u, v);
+    }
+
+    // Mảng đếm bậc của từng đỉnh (khởi tạo về 0)
+    int degree[101]; 
+    for (int i = 1; i <= n; i++) degree[i] = 0;
+
+    // Tính bậc dựa trên danh sách cung đã lưu trong G
+    for (int i = 0; i < G.m; i++) {
+        degree[G.edges[i].x]++;
+        degree[G.edges[i].y]++;
+    }
+
+    // Tìm đỉnh có bậc lớn nhất
+    int max_v = 1;
+    int max_d = degree[1];
+
+    for (int i = 1; i <= n; i++) {
+        if (degree[i] > max_d) {
+            max_d = degree[i];
+            max_v = i;
+        }
+        // Vì i chạy từ 1 đến n, nếu degree[i] == max_d 
+        // ta không cập nhật max_v, đảm bảo lấy đỉnh nhỏ nhất.
+    }
+
+    printf("%d %d\n", max_v, max_d);
+
+    return 0;
+}
