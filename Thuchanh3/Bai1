@@ -1,0 +1,58 @@
+#include <stdio.h>
+
+#define MAX_N 101
+#define INF 1000000
+
+int W[MAX_N][MAX_N];
+int pi[MAX_N];
+int mark[MAX_N];
+
+void dijkstra(int n, int start) {
+    for (int i = 1; i <= n; i++) {
+        pi[i] = INF;
+        mark[i] = 0;
+    }
+    pi[start] = 0;
+
+    for (int i = 1; i <= n; i++) {
+        int u = -1, min_pi = INF;
+        for (int j = 1; j <= n; j++) {
+            if (!mark[j] && pi[j] < min_pi) {
+                min_pi = pi[j];
+                u = j;
+            }
+        }
+
+        if (u == -1) break;
+        mark[u] = 1;
+
+        for (int v = 1; v <= n; v++) {
+            if (W[u][v] != INF && !mark[v]) {
+                if (pi[u] + W[u][v] < pi[v]) {
+                    pi[v] = pi[u] + W[u][v];
+                }
+            }
+        }
+    }
+}
+
+int main() {
+    int n, m, u, v, w;
+    if (scanf("%d%d", &n, &m) != 2) return 0;
+
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            W[i][j] = INF;
+
+    for (int e = 0; e < m; e++) {
+        scanf("%d%d%d", &u, &v, &w);
+        if (w < W[u][v]) W[u][v] = w;
+    }
+
+    dijkstra(n, 1);
+
+    if (pi[n] == INF) printf("-1\n");
+    else printf("%d\n", pi[n]);
+
+    return 0;
+}
