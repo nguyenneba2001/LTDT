@@ -1,0 +1,11 @@
+int edgeCount(Graph* G) {
+    int count = 0;
+    // Duyệt qua các cặp đỉnh (i, j) với i < j để tránh đếm lặp
+    for (int i = 1; i <= G->n; i++) {
+        for (int j = i + 1; j <= G->n; j++) {
+            // Cộng số lượng đa cung giữa đỉnh i và j
+            count += G->A[i][j];
+        }
+    }
+    return count;
+}
