@@ -1,0 +1,63 @@
+#include <stdio.h>
+
+#define MAX_N 105
+#define MAX_M 505
+#define INF 1000000000
+
+typedef struct {
+    int u, v, w;
+} Edge;
+
+typedef struct {
+    int n, m;
+    Edge edges[MAX_M];
+} Graph;
+
+void init_graph(Graph* G, int n) {
+    G->n = n;
+    G->m = 0;
+}
+
+void add_edge(Graph* G, int u, int v, int w) {
+    G->edges[G->m].u = u;
+    G->edges[G->m].v = v;
+    G->edges[G->m].w = w;
+    G->m++;
+}
+
+int main() {
+    Graph G;
+    int n, m;
+    if (scanf("%d%d", &n, &m) != 2) return 0;
+    init_graph(&G, n);
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        scanf("%d%d%d", &u, &v, &w);
+        add_edge(&G, u, v, w);
+    }
+
+    int pi[MAX_N], p[MAX_N];
+    for (int i = 1; i <= n; i++) {
+        pi[i] = INF;
+        p[i] = -1;
+    }
+    pi[1] = 0;
+
+    // Duyệt n-1 lần để đảm bảo tìm được đường đi ngắn nhất
+    for (int i = 1; i < n; i++) {
+        for (int j = 0; j < G.m; j++) {
+            int u = G.edges[j].u;
+            int v = G.edges[j].v;
+            int weight = G.edges[j].w;
+            if (pi[u] != INF && pi[u] + weight < pi[v]) {
+                pi[v] = pi[u] + weight;
+                p[v] = u;
+            }
+        }
+    }
+
+    for (int i = 1; i <= n; i++) {
+        printf("pi[%d] = %d, p[%d] = %d\n", i, pi[i], i, p[i]);
+    }
+    return 0;
+}
