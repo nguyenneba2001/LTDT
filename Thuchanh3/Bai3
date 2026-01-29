@@ -1,0 +1,49 @@
+#include <stdio.h>
+
+#define MAX_N 101
+#define INF 1000000000
+
+int main() {
+    int n, m, u, v, q;
+    int W[MAX_N][MAX_N];
+    int d[MAX_N], mark[MAX_N];
+
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    // Khởi tạo ma trận trọng số
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) W[i][j] = INF;
+        W[i][i] = 0;
+        d[i] = INF;
+        mark[i] = 0;
+    }
+
+    for (int i = 0; i < m; i++) {
+        scanf("%d %d %d", &u, &v, &q);
+        if (q < W[u][v]) { // Đề phòng đa cung
+            W[u][v] = W[v][u] = q;
+        }
+    }
+
+    d[1] = 0;
+    for (int i = 1; i <= n; i++) {
+        int u = -1;
+        for (int j = 1; j <= n; j++) {
+            if (!mark[j] && (u == -1 || d[j] < d[u])) u = j;
+        }
+
+        if (u == -1 || d[u] == INF) break;
+        mark[u] = 1;
+
+        for (int v = 1; v <= n; v++) {
+            if (!mark[v] && W[u][v] != INF) {
+                if (d[u] + W[u][v] < d[v]) {
+                    d[v] = d[u] + W[u][v];
+                }
+            }
+        }
+    }
+
+    printf("%d\n", d[n]);
+    return 0;
+}
