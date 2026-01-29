@@ -1,0 +1,35 @@
+List neighbors(Graph* G, int x) {
+    List L;
+    make_null(&L);
+
+    // Dùng một mảng tạm để đánh dấu các đỉnh kề
+    // Khởi tạo tất cả là 0
+    int mark[100]; 
+    for (int i = 1; i <= G->n; i++) {
+        mark[i] = 0;
+    }
+
+    // Duyệt qua từng cung e từ 1 đến m
+    for (int e = 1; e <= G->m; e++) {
+        // Nếu đỉnh x liên thuộc với cung e
+        if (G->A[x][e] == 1) {
+            // Tìm đỉnh y còn lại trên cột e
+            for (int y = 1; y <= G->n; y++) {
+                if (y != x && G->A[y][e] == 1) {
+                    mark[y] = 1; // Đánh dấu y là kề với x
+                    break; 
+                }
+            }
+        }
+    }
+
+    // Duyệt từ 1 đến n để thêm vào List
+    // Việc duyệt từ 1 -> n giúp kết quả LUÔN TĂNG DẦN và KHÔNG TRÙNG
+    for (int i = 1; i <= G->n; i++) {
+        if (mark[i] == 1) {
+            push_back(&L, i);
+        }
+    }
+
+    return L;
+}
