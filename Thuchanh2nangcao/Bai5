@@ -1,0 +1,86 @@
+#include <stdio.h>
+
+#define MAX_N 100
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+typedef struct {
+    int n, m;
+    int A[MAX_N][MAX_N];
+} Graph;
+
+void init_graph(Graph* G, int n) {
+    G->n = n;
+    G->m = 0;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            G->A[i][j] = 0;
+}
+
+void add_edge(Graph* G, int u, int v) {
+    G->A[u][v] = 1;
+}
+
+int num[MAX_N], low[MAX_N], stack[MAX_N];
+int onStack[MAX_N], timer, top, scc_count;
+
+void find_scc(Graph* G, int u) {
+    num[u] = low[u] = ++timer;
+    stack[++top] = u;
+    onStack[u] = 1;
+
+    for (int v = 1; v <= G->n; v++) {
+        if (G->A[u][v]) {
+            if (num[v] == 0) {
+                find_scc(G, v);
+                low[u] = MIN(low[u], low[v]);
+            } else if (onStack[v]) {
+                low[u] = MIN(low[u], num[v]);
+            }
+        }
+    }
+
+    if (num[u] == low[u]) {
+        scc_count++;
+        int v;
+        do {
+            v = stack[top--];
+            onStack[v] = 0;
+        } while (u != v);
+    }
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Bỏ comment khi chạy thử file
+    Graph G;
+    int n, m, u, v;
+
+    if (scanf("%d%d", &n, &m) != 2) return 0;
+    init_graph(&G, n);
+
+    for (int e = 0; e < m; e++) {
+        scanf("%d%d", &u, &v);
+        add_edge(&G, u, v);
+    }
+
+    // Khởi tạo các mảng hỗ trợ
+    timer = top = scc_count = 0;
+    for (int i = 1; i <= n; i++) {
+        num[i] = 0;
+        onStack[i] = 0;
+    }
+
+    // Chạy Tarjan cho các đỉnh chưa thăm
+    for (int i = 1; i <= n; i++) {
+        if (num[i] == 0) find_scc(&G, i);
+    }
+
+    // Đồ thị liên thông mạnh khi chỉ có 1 thành phần liên thông mạnh duy nhất
+    // và thành phần đó phải chứa tất cả các đỉnh (đã xử lý trong find_scc)
+    if (scc_count == 1) {
+        printf("strong connected\n");
+    } else {
+        printf("unconnected\n");
+    }
+
+    return 0;
+}
