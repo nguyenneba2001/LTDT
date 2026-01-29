@@ -1,0 +1,90 @@
+#include <stdio.h>
+
+#define MAXN 1001
+
+// Cấu trúc phần tử ngăn xếp theo gợi ý
+typedef struct {
+    int u;
+    int parent;
+} ELEMENT_TYPE;
+
+int n, m;
+int adj[MAXN][MAXN];
+int visited[MAXN];
+int parent_arr[MAXN];
+
+// Ngăn xếp (Stack) đơn giản
+ELEMENT_TYPE stack[MAXN * MAXN];
+int top = -1;
+
+void push(int u, int p) {
+    top++;
+    stack[top].u = u;
+    stack[top].parent = p;
+}
+
+ELEMENT_TYPE pop() {
+    return stack[top--];
+}
+
+void dfs_stack(int start_node) {
+    push(start_node, 0);
+
+    while (top != -1) {
+        ELEMENT_TYPE current = pop();
+        int u = current.u;
+        int p = current.parent;
+
+        if (!visited[u]) {
+            visited[u] = 1;
+            parent_arr[u] = p;
+
+            // Quy ước: Duyệt đỉnh kề theo thứ tự tăng dần.
+            // Để đỉnh lớn nhất được xử lý trước (giống ví dụ 13 16),
+            // ta đẩy vào stack theo thứ tự từ 1 đến n.
+            for (int v = 1; v <= n; v++) {
+                if (adj[u][v] == 1 && !visited[v]) {
+                    push(v, u);
+                }
+            }
+        }
+    }
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Bỏ comment khi chạy thử local
+
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    // Khởi tạo
+    for (int i = 1; i <= n; i++) {
+        visited[i] = 0;
+        parent_arr[i] = 0;
+        for (int j = 1; j <= n; j++) {
+            adj[i][j] = 0;
+        }
+    }
+
+    // Đọc cung (u, v)
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        if (scanf("%d %d", &u, &v) == 2) {
+            adj[u][v] = 1;
+            adj[v][u] = 1;
+        }
+    }
+
+    // Duyệt mọi thành phần liên thông theo thứ tự đỉnh tăng dần
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i]) {
+            dfs_stack(i);
+        }
+    }
+
+    // In kết quả theo định dạng i parent[i]
+    for (int i = 1; i <= n; i++) {
+        printf("%d %d\n", i, parent_arr[i]);
+    }
+
+    return 0;
+}
