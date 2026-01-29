@@ -1,0 +1,70 @@
+#include <stdio.h>
+
+#define MAX_N 100
+
+typedef struct {
+    int n, m;
+    int A[MAX_N][MAX_N];
+} Graph;
+
+void init_graph(Graph* G, int n) {
+    G->n = n;
+    G->m = 0;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            G->A[i][j] = 0;
+}
+
+void add_edge(Graph* G, int u, int v) {
+    G->A[u][v] = 1;
+    G->A[v][u] = 1;
+}
+
+int visited[MAX_N];
+int has_cycle = 0;
+
+// u: đỉnh hiện tại, p: đỉnh cha (parent)
+void dfs(Graph* G, int u, int p) {
+    visited[u] = 1;
+    for (int v = 1; v <= G->n; v++) {
+        if (G->A[u][v]) {
+            if (v == p) continue; // Bỏ qua đỉnh vừa từ đó đi tới
+            if (visited[v]) {
+                has_cycle = 1; // Tìm thấy đỉnh đã thăm -> có chu trình
+                return;
+            }
+            dfs(G, v, u);
+            if (has_cycle) return;
+        }
+    }
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Gỡ bỏ khi nộp bài
+    Graph G;
+    int n, m, u, v;
+    
+    if (scanf("%d%d", &n, &m) != 2) return 0;
+    init_graph(&G, n);
+    
+    for (int e = 0; e < m; e++) {
+        scanf("%d%d", &u, &v);
+        add_edge(&G, u, v);
+    }
+
+    // Khởi tạo trạng thái chưa thăm
+    for (int i = 1; i <= n; i++) visited[i] = 0;
+
+    // Duyệt qua tất cả các thành phần liên thông
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i]) {
+            dfs(&G, i, -1);
+            if (has_cycle) break;
+        }
+    }
+
+    if (has_cycle) printf("YES\n");
+    else printf("NO\n");
+
+    return 0;
+}
