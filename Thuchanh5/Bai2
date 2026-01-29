@@ -1,0 +1,117 @@
+#include <stdio.h>
+
+#define MAX_N 105
+#define INF 99999999
+
+// Cấu trúc lưu trữ một cung (edge) cho output
+struct Edge {
+    int u, v, w;
+};
+
+// Hàm so sánh cho việc sắp xếp cung (theo u, rồi v)
+int compareEdges(struct Edge a, struct Edge b) {
+    if (a.u != b.u) {
+        return a.u < b.u;
+    }
+    return a.v < b.v;
+}
+
+// Hàm sắp xếp các cung (Bubble Sort đơn giản)
+void sortEdges(struct Edge arr[], int count) {
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; j++) {
+            if (!compareEdges(arr[j], arr[j+1])) {
+                struct Edge temp = arr[j];
+                arr[j] = arr[j+1];
+                arr[j+1] = temp;
+            }
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    // Đọc số đỉnh (n) và số cung (m)
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    int adj[MAX_N][MAX_N];
+    // Khởi tạo ma trận kề
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            adj[i][j] = INF;
+        }
+    }
+
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        // Lưu trọng số nhỏ nhất nếu có nhiều cung giữa u, v
+        if (w < adj[u][v]) {
+            adj[u][v] = adj[v][u] = w;
+        }
+    }
+
+    // --- Giải thuật Prim ---
+    int parent[MAX_N];
+    int min_weight[MAX_N];
+    int visited[MAX_N] = {0};
+    long long totalWeight = 0;
+    struct Edge mst_edges[MAX_N - 1];
+    int mstEdgeCount = 0;
+
+    // Bắt đầu từ đỉnh 1
+    for (int i = 1; i <= n; i++) {
+        min_weight[i] = INF;
+        parent[i] = -1;
+    }
+    min_weight[1] = 0; 
+
+    for (int i = 0; i < n; i++) {
+        int u = -1;
+        // Tìm đỉnh u chưa thăm có trọng số min_weight nhỏ nhất
+        for (int v = 1; v <= n; v++) {
+            if (!visited[v] && (u == -1 || min_weight[v] < min_weight[u])) {
+                u = v;
+            }
+        }
+
+        visited[u] = 1;
+        totalWeight += min_weight[u];
+
+        // Nếu không phải đỉnh bắt đầu (đỉnh 1), lưu cung vào MST
+        if (u != 1) {
+            int p = parent[u];
+            int v_node = u;
+            // Đảm bảo thứ tự u < v cho output
+            if (p > v_node) {
+                int temp = p;
+                p = v_node;
+                v_node = temp;
+            }
+            mst_edges[mstEdgeCount].u = p;
+            mst_edges[mstEdgeCount].v = v_node;
+            mst_edges[mstEdgeCount].w = adj[parent[u]][u];
+            mstEdgeCount++;
+        }
+
+        // Cập nhật min_weight cho các đỉnh kề
+        for (int v = 1; v <= n; v++) {
+            if (!visited[v] && adj[u][v] != INF && adj[u][v] < min_weight[v]) {
+                min_weight[v] = adj[u][v];
+                parent[v] = u;
+            }
+        }
+    }
+    // --- Kết thúc Prim ---
+
+    // Sắp xếp các cung trong MST theo yêu cầu output
+    sortEdges(mst_edges, mstEdgeCount);
+
+    // In kết quả
+    printf("%lld\n", totalWeight);
+    for (int i = 0; i < mstEdgeCount; i++) {
+        printf("%d %d %d\n", mst_edges[i].u, mst_edges[i].v, mst_edges[i].w);
+    }
+
+    return 0;
+}
