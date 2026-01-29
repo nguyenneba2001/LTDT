@@ -1,0 +1,21 @@
+int deg2(Graph* G) {
+    int count_even_deg = 0;
+
+    // Duyệt qua từng đỉnh x từ 1 đến n
+    for (int x = 1; x <= G->n; x++) {
+        int d = 0;
+        // Tính bậc của đỉnh x bằng cách duyệt hàng x trong ma trận kề
+        for (int y = 1; y <= G->n; y++) {
+            if (G->A[x][y] != 0) {
+                d++;
+            }
+        }
+
+        // Kiểm tra nếu bậc d là số chẵn
+        if (d % 2 == 0) {
+            count_even_deg++;
+        }
+    }
+
+    return count_even_deg;
+}
