@@ -1,0 +1,102 @@
+#include <stdio.h>
+
+#define MAX_N 105
+#define MAX_M 1005
+
+// Định nghĩa struct (C++ cho phép dùng Edge không cần struct, C cần)
+struct Edge {
+    int u, v, w;
+};
+
+// Khai báo biến với từ khóa 'struct' đầy đủ
+struct Edge edges[MAX_M];
+struct Edge mst_edges[MAX_N];
+
+// --- Cấu trúc Disjoint Set Union (DSU) ---
+int parent[MAX_N];
+
+void make_set(int v) {
+    parent[v] = v;
+}
+
+int find_set(int v) {
+    if (v == parent[v])
+        return v;
+    return parent[v] = find_set(parent[v]);
+}
+
+void union_sets(int a, int b) {
+    a = find_set(a);
+    b = find_set(b);
+    if (a != b)
+        parent[b] = a;
+}
+// --- Kết thúc DSU ---
+
+// Hàm so sánh cho việc sắp xếp cung
+int compareEdges(struct Edge a, struct Edge b) {
+    if (a.w != b.w) {
+        return a.w < b.w;
+    }
+    if (a.u != b.u) {
+        return a.u < b.u;
+    }
+    return a.v < b.v;
+}
+
+// Hàm sắp xếp các cung (Bubble Sort)
+void sortEdges(struct Edge arr[], int count) {
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; j++) {
+            if (!compareEdges(arr[j], arr[j+1])) {
+                struct Edge temp = arr[j];
+                arr[j] = arr[j+1];
+                arr[j+1] = temp;
+            }
+        }
+    }
+}
+
+
+int main() {
+    int n, m;
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    for (int i = 0; i < m; i++) {
+        // Truy cập thành viên struct bằng dấu chấm . 
+        scanf("%d %d %d", &edges[i].u, &edges[i].v, &edges[i].w);
+        if (edges[i].u > edges[i].v) {
+            int temp = edges[i].u;
+            edges[i].u = edges[i].v;
+            edges[i].v = temp;
+        }
+    }
+
+    sortEdges(edges, m);
+
+    for (int i = 1; i <= n; i++) {
+        make_set(i);
+    }
+
+    long long totalWeight = 0;
+    int mstEdgeCount = 0;
+    
+    for (int i = 0; i < m && mstEdgeCount < n - 1; i++) {
+        int u = edges[i].u;
+        int v = edges[i].v;
+        
+        if (find_set(u) != find_set(v)) {
+            union_sets(u, v);
+            totalWeight += edges[i].w;
+            mst_edges[mstEdgeCount++] = edges[i];
+        }
+    }
+
+    printf("%lld\n", totalWeight);
+
+    for (int i = 0; i < mstEdgeCount; i++) {
+        printf("%d %d %d\n", mst_edges[i].u, mst_edges[i].v, mst_edges[i].w);
+    }
+
+    return 0;
+}
