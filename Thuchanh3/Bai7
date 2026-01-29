@@ -1,0 +1,75 @@
+#include <stdio.h>
+
+#define MAX_N 105
+#define MAX_M 505
+#define INF 1000000000
+
+typedef struct {
+    int u, v, w;
+} Edge;
+
+typedef struct {
+    int n, m;
+    Edge edges[MAX_M];
+} Graph;
+
+void init_graph(Graph* G, int n) {
+    G->n = n;
+    G->m = 0;
+}
+
+void add_edge(Graph* G, int u, int v, int w) {
+    G->edges[G->m].u = u;
+    G->edges[G->m].v = v;
+    G->edges[G->m].w = w;
+    G->m++;
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Gỡ bỏ khi nộp bài
+    Graph G;
+    int n, m, s;
+    
+    if (scanf("%d%d", &n, &m) != 2) return 0;
+    init_graph(&G, n);
+    
+    for (int e = 0; e < m; e++) {
+        int u, v, w;
+        scanf("%d%d%d", &u, &v, &w);
+        add_edge(&G, u, v, w);
+    }
+    scanf("%d", &s);
+
+    int d[MAX_N];
+    for (int i = 1; i <= n; i++) d[i] = INF;
+    d[s] = 0;
+
+    // Bước 1: Nới lỏng các cung n-1 lần
+    for (int i = 1; i < n; i++) {
+        for (int j = 0; j < G.m; j++) {
+            int u = G.edges[j].u;
+            int v = G.edges[j].v;
+            int weight = G.edges[j].w;
+            if (d[u] != INF && d[u] + weight < d[v]) {
+                d[v] = d[u] + weight;
+            }
+        }
+    }
+
+    // Bước 2: Kiểm tra lần thứ n để phát hiện chu trình âm
+    int has_negative_cycle = 0;
+    for (int j = 0; j < G.m; j++) {
+        int u = G.edges[j].u;
+        int v = G.edges[j].v;
+        int weight = G.edges[j].w;
+        if (d[u] != INF && d[u] + weight < d[v]) {
+            has_negative_cycle = 1;
+            break;
+        }
+    }
+
+    if (has_negative_cycle) printf("YES\n");
+    else printf("NO\n");
+
+    return 0;
+}
