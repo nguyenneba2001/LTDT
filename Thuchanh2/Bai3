@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_N 1001
+
+int n, m;
+int adj[MAX_N][MAX_N];
+int visited[MAX_N];
+
+// Hàm đệ quy DFS
+void dfs_recursive(int u) {
+    visited[u] = 1;
+    printf("%d\n", u);
+
+    // Duyệt các đỉnh kề từ 1 đến n để đảm bảo thứ tự tăng dần
+    for (int v = 1; v <= n; v++) {
+        if (adj[u][v] == 1 && !visited[v]) {
+            dfs_recursive(v);
+        }
+    }
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Bỏ comment khi chạy thử máy local
+
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    // Khởi tạo ma trận kề và mảng đánh dấu
+    for (int i = 1; i <= n; i++) {
+        visited[i] = 0;
+        for (int j = 1; j <= n; j++) {
+            adj[i][j] = 0;
+        }
+    }
+
+    // Đọc dữ liệu các cạnh
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        if (scanf("%d %d", &u, &v) == 2) {
+            adj[u][v] = 1;
+            adj[v][u] = 1;
+        }
+    }
+
+    // Duyệt tất cả các thành phần liên thông
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i]) {
+            dfs_recursive(i);
+        }
+    }
+
+    return 0;
+}
