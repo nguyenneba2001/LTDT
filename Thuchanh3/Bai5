@@ -1,0 +1,59 @@
+#include <stdio.h>
+
+#define MAX_N 101
+#define INF 1000000
+
+int main() {
+    int n, m, s, t;
+    int W[MAX_N][MAX_N];
+    int pi[MAX_N], mark[MAX_N];
+
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    // Khởi tạo đồ thị
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) W[i][j] = INF;
+        W[i][i] = 0;
+        pi[i] = INF;
+        mark[i] = 0;
+    }
+
+    for (int i = 0; i < m; i++) {
+        int u, v, d;
+        scanf("%d %d %d", &u, &v, &d);
+        if (d < W[u][v]) { // Đề phòng đa cung
+            W[u][v] = W[v][u] = d;
+        }
+    }
+
+    scanf("%d %d", &s, &t);
+
+    // Thuật toán Dijkstra
+    pi[s] = 0;
+    for (int i = 1; i <= n; i++) {
+        int u = -1, min_d = INF;
+        // Tìm đỉnh u chưa mark có pi nhỏ nhất
+        for (int j = 1; j <= n; j++) {
+            if (!mark[j] && pi[j] < min_d) {
+                min_d = pi[j];
+                u = j;
+            }
+        }
+
+        if (u == -1 || u == t) break;
+        mark[u] = 1;
+
+        // Cập nhật láng giềng của u
+        for (int v = 1; v <= n; v++) {
+            if (!mark[v] && W[u][v] != INF) {
+                if (pi[u] + W[u][v] < pi[v]) {
+                    pi[v] = pi[u] + W[u][v];
+                }
+            }
+        }
+    }
+
+    printf("%d\n", pi[t]);
+
+    return 0;
+}
