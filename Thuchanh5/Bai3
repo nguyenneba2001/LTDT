@@ -1,0 +1,119 @@
+#include <stdio.h>
+
+#define MAX_N 105
+#define INF 99999999
+
+int n, m;
+int capacity[MAX_N][MAX_N]; // Ma trận khả năng thông qua (residual graph)
+int parent[MAX_N]; // Mảng lưu đường đi (phục vụ BFS)
+int visited[MAX_N]; // Mảng đánh dấu đỉnh đã thăm (phục vụ BFS)
+
+// Hàm BFS tìm đường tăng luồng từ s đến t
+int bfs(int s, int t) {
+    for (int i = 1; i <= n; i++) {
+        visited[i] = 0;
+        parent[i] = -1;
+    }
+
+    int queue[MAX_N];
+    int q_front = 0, q_rear = 0;
+
+    queue[q_rear++] = s;
+    visited[s] = 1;
+
+    while (q_front < q_rear) {
+        int u = queue[q_front++];
+
+        for (int v = 1; v <= n; v++) {
+            // Nếu v chưa thăm và vẫn còn capacity từ u đến v
+            if (!visited[v] && capacity[u][v] > 0) {
+                visited[v] = 1;
+                parent[v] = u;
+                queue[q_rear++] = v;
+                if (v == t) return 1; // Đã tìm thấy đường đi đến đích t
+            }
+        }
+    }
+    return 0; // Không tìm thấy đường đi
+}
+
+// Hàm in tập đỉnh X0 và Y0
+void print_sets(int s, int t) {
+    // BFS lần cuối để xác định các tập X0 và Y0
+    for (int i = 1; i <= n; i++) visited[i] = 0;
+    int queue[MAX_N];
+    int q_front = 0, q_rear = 0;
+    queue[q_rear++] = s;
+    visited[s] = 1;
+    while (q_front < q_rear) {
+        int u = queue[q_front++];
+        for (int v = 1; v <= n; v++) {
+            if (!visited[v] && capacity[u][v] > 0) { // capacity > 0 trong đồ thị còn lại
+                visited[v] = 1;
+                queue[q_rear++] = v;
+            }
+        }
+    }
+    
+    printf("X0:");
+    for (int i = 1; i <= n; i++) {
+        if (visited[i]) printf(" %d", i);
+    }
+    printf("\nY0:");
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i]) printf(" %d", i);
+    }
+    printf("\n");
+}
+
+
+int main() {
+    // Đọc số đỉnh (n) và số cung (m)
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    // Khởi tạo capacity graph
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            capacity[i][j] = 0;
+        }
+    }
+
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        capacity[u][v] += w; // Cộng dồn capacity nếu có nhiều cung giữa 1 cặp đỉnh
+    }
+    
+    int s = 1; // Đỉnh nguồn (source)
+    int t = n; // Đỉnh thu (sink)
+    long long max_flow = 0;
+
+    // --- Thuật toán Ford-Fulkerson (BFS) ---
+    while (bfs(s, t)) {
+        // Tìm lượng luồng có thể tăng thêm trên đường đi vừa tìm thấy
+        int path_flow = INF;
+        for (int v = t; v != s; v = parent[v]) {
+            int u = parent[v];
+            if (path_flow > capacity[u][v]) {
+                path_flow = capacity[u][v];
+            }
+        }
+
+        // Cập nhật luồng trên các cung (trừ đi trên cung thuận, cộng thêm trên cung nghịch)
+        for (int v = t; v != s; v = parent[v]) {
+            int u = parent[v];
+            capacity[u][v] -= path_flow;
+            capacity[v][u] += path_flow;
+        }
+
+        max_flow += path_flow;
+    }
+    // --- Kết thúc Ford-Fulkerson ---
+
+    // In kết quả
+    printf("Max flow: %lld\n", max_flow);
+    print_sets(s, t);
+
+
+    return 0;
+}
