@@ -1,0 +1,71 @@
+#include <stdio.h>
+
+#define MAX_N 1000
+
+int adj[MAX_N][MAX_N];
+int color[MAX_N]; // 0: chưa tô, 1: nhóm 1, 2: nhóm 2
+int n, m;
+
+// Sử dụng BFS để tô màu và phân nhóm
+int is_bipartite(int start) {
+    int queue[MAX_N], front = 0, rear = 0;
+    
+    queue[rear++] = start;
+    color[start] = 1; // Mặc định đỉnh đầu tiên thuộc nhóm 1
+
+    while (front < rear) {
+        int u = queue[front++];
+        for (int v = 1; v <= n; v++) {
+            if (adj[u][v]) {
+                if (color[v] == 0) {
+                    color[v] = 3 - color[u]; // Nếu u màu 1 thì v màu 2 và ngược lại
+                    queue[rear++] = v;
+                } else if (color[v] == color[u]) {
+                    return 0; // Hai thành viên đấu với nhau bị cùng nhóm -> Thất bại
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin);
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    for (int i = 1; i <= n; i++) {
+        color[i] = 0;
+        for (int j = 1; j <= n; j++) adj[i][j] = 0;
+    }
+
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+        adj[u][v] = adj[v][u] = 1;
+    }
+
+    // Kiểm tra từng thành phần liên thông
+    for (int i = 1; i <= n; i++) {
+        if (color[i] == 0) {
+            if (!is_bipartite(i)) {
+                printf("IMPOSSIBLE\n");
+                return 0;
+            }
+        }
+    }
+
+    // In nhóm của thành viên 1 (nhóm có màu color[1])
+    int color1 = color[1];
+    for (int i = 1; i <= n; i++) {
+        if (color[i] == color1) printf("%d ", i);
+    }
+    printf("\n");
+
+    // In nhóm còn lại
+    for (int i = 1; i <= n; i++) {
+        if (color[i] != color1) printf("%d ", i);
+    }
+    printf("\n");
+
+    return 0;
+}
