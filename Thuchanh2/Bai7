@@ -1,0 +1,59 @@
+#include <stdio.h>
+
+#define MAXN 1001
+
+int n, m;
+int adj[MAXN][MAXN]; // Ma trận kề để đảm bảo thứ tự kề tăng dần
+int visited[MAXN];
+int parent[MAXN];
+
+// Hàm đệ quy DFS theo gợi ý: u là đỉnh hiện tại, p là cha của u
+void visit(int u, int p) {
+    visited[u] = 1;
+    parent[u] = p;
+
+    // Duyệt các đỉnh v từ 1 đến n để đảm bảo thứ tự tăng dần
+    for (int v = 1; v <= n; v++) {
+        if (adj[u][v] == 1 && !visited[v]) {
+            visit(v, u);
+        }
+    }
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Bỏ comment khi chạy thử local
+
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    // Khởi tạo các mảng
+    for (int i = 1; i <= n; i++) {
+        visited[i] = 0;
+        parent[i] = 0;
+        for (int j = 1; j <= n; j++) {
+            adj[i][j] = 0;
+        }
+    }
+
+    // Đọc các cung (u, v)
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        if (scanf("%d %d", &u, &v) == 2) {
+            adj[u][v] = 1;
+            adj[v][u] = 1;
+        }
+    }
+
+    // Duyệt mọi thành phần liên thông, bắt đầu tìm từ đỉnh có chỉ số nhỏ nhất
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i]) {
+            visit(i, 0); // Đỉnh gốc của mỗi thành phần có cha là 0
+        }
+    }
+
+    // In kết quả theo định dạng: u parent[u]
+    for (int i = 1; i <= n; i++) {
+        printf("%d %d\n", i, parent[i]);
+    }
+
+    return 0;
+}
