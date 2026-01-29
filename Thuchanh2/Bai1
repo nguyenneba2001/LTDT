@@ -1,0 +1,75 @@
+#include <stdio.h>
+
+#define MAXN 1005
+#define MAXM 20005
+
+// Cấu trúc danh sách kề bằng mảng tĩnh (Forward Star)
+int head[MAXN], next[MAXM], to[MAXM], edge_count = 0;
+int visited[MAXN];
+int queue[MAXN];
+int n, m;
+
+// Thêm cạnh vào danh sách kề
+void add_edge(int u, int v) {
+    edge_count++;
+    to[edge_count] = v;
+    next[edge_count] = head[u];
+    head[u] = edge_count;
+}
+
+void bfs(int start) {
+    int front = 0, rear = 0;
+    queue[rear++] = start;
+    visited[start] = 1;
+
+    while (front < rear) {
+        int u = queue[front++];
+        printf("%d\n", u);
+
+        // Tìm các đỉnh kề v của u theo thứ tự tăng dần
+        // Để đơn giản và đúng quy ước tăng dần, ta quét từ 1 đến n
+        // Cách này an toàn nhất cho web chấm bài cơ bản
+        for (int v = 1; v <= n; v++) {
+            // Kiểm tra xem u và v có nối với nhau không
+            // Lưu ý: Nếu n quá lớn (n > 5000), ta phải dùng cách sắp xếp danh sách kề
+            // Ở đây dùng một mảng phụ tạm thời để kiểm tra cạnh cho nhanh
+        }
+    }
+}
+
+// PHIÊN BẢN TỐI ƯU NHẤT CHO WEB CHẤM: Sử dụng Ma trận kề nếu N <= 1000
+int adj[MAXN][MAXN];
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Xóa dòng này khi nộp
+    if (scanf("%d%d", &n, &m) != 2) return 0;
+
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d%d", &u, &v);
+        if (u <= n && v <= n) {
+            adj[u][v] = 1;
+            adj[v][u] = 1;
+        }
+    }
+
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i]) {
+            // BFS thủ công ngay tại đây
+            int q[MAXN], f = 0, r = 0;
+            q[r++] = i;
+            visited[i] = 1;
+            while (f < r) {
+                int u = q[f++];
+                printf("%d\n", u);
+                for (int v = 1; v <= n; v++) {
+                    if (adj[u][v] && !visited[v]) {
+                        visited[v] = 1;
+                        q[r++] = v;
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
