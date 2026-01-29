@@ -1,0 +1,16 @@
+int deg(Graph* G, int x) {
+    // Kiểm tra tính hợp lệ của đỉnh x
+    if (x < 1 || x > G->n) {
+        return 0;
+    }
+
+    int count = 0;
+    // Duyệt qua tất cả các đỉnh y từ 1 đến n
+    for (int y = 1; y <= G->n; y++) {
+        // Nếu có cạnh nối từ x đến y
+        if (G->A[x][y] != 0) {
+            count++;
+        }
+    }
+    return count;
+}
