@@ -1,0 +1,88 @@
+#include <stdio.h>
+
+#define MAX_N 100
+
+typedef struct {
+    int n, m;
+    int A[MAX_N][MAX_N];
+} Graph;
+
+void init_graph(Graph* G, int n) {
+    G->n = n;
+    G->m = 0;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            G->A[i][j] = 0;
+}
+
+void add_edge(Graph* G, int u, int v) {
+    G->A[u][v] = 1;
+}
+
+// Các biến phục vụ thuật toán Tarjan
+int num[MAX_N], low[MAX_N], stack[MAX_N];
+int onStack[MAX_N];
+int timer = 0, top = -1, scc_count = 0;
+
+int min(int a, int b) {
+    return (a < b) ? a : b;
+}
+
+void find_scc(Graph* G, int u) {
+    num[u] = low[u] = ++timer;
+    stack[++top] = u;
+    onStack[u] = 1;
+
+    for (int v = 1; v <= G->n; v++) {
+        if (G->A[u][v]) {
+            if (num[v] == 0) { // Nếu v chưa thăm
+                find_scc(G, v);
+                low[u] = min(low[u], low[v]);
+            } else if (onStack[v]) { // Nếu v nằm trong ngăn xếp (cung ngược)
+                low[u] = min(low[u], num[v]);
+            }
+        }
+    }
+
+    // Nếu u là chốt của một bộ phận liên thông mạnh
+    if (num[u] == low[u]) {
+        scc_count++;
+        int v;
+        do {
+            v = stack[top--];
+            onStack[v] = 0;
+        } while (u != v);
+    }
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Thêm dòng này để chạy thử file
+    Graph G;
+    int n, m, u, v;
+
+    if (scanf("%d%d", &n, &m) != 2) return 0;
+    init_graph(&G, n);
+
+    for (int e = 0; e < m; e++) {
+        scanf("%d%d", &u, &v);
+        add_edge(&G, u, v);
+    }
+
+    // Khởi tạo các mảng trạng thái
+    for (int i = 1; i <= n; i++) {
+        num[i] = 0;
+        low[i] = 0;
+        onStack[i] = 0;
+    }
+
+    // Duyệt qua tất cả các đỉnh để đảm bảo không bỏ sót thành phần nào
+    for (int i = 1; i <= n; i++) {
+        if (num[i] == 0) {
+            find_scc(&G, i);
+        }
+    }
+
+    printf("%d\n", scc_count);
+
+    return 0;
+}
