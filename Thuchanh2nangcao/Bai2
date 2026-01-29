@@ -1,0 +1,80 @@
+#include <stdio.h>
+
+#define MAX_N 100
+
+typedef struct {
+    int n, m;
+    int A[MAX_N][MAX_N]; // Lưu số lượng cạnh giữa u và v
+} Graph;
+
+void init_graph(Graph* G, int n) {
+    G->n = n;
+    G->m = 0;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            G->A[i][j] = 0;
+}
+
+void add_edge(Graph* G, int u, int v) {
+    G->A[u][v]++;
+    if (u != v) G->A[v][u]++;
+    G->m++;
+}
+
+int visited[MAX_N];
+int has_cycle = 0;
+
+void dfs(Graph* G, int u, int p) {
+    visited[u] = 1;
+    for (int v = 1; v <= G->n; v++) {
+        if (G->A[u][v] > 0) {
+            // Trường hợp 1: Khuyên (Cung tự nối chính nó)
+            if (v == u) {
+                has_cycle = 1;
+                return;
+            }
+            // Trường hợp 2: Đa cung (Có > 1 cung giữa u và v)
+            if (v == p && G->A[u][v] > 1) {
+                has_cycle = 1;
+                return;
+            }
+            // Trường hợp 3: Chu trình qua các đỉnh khác
+            if (v != p) {
+                if (visited[v]) {
+                    has_cycle = 1;
+                    return;
+                }
+                dfs(G, v, u);
+                if (has_cycle) return;
+            }
+        }
+    }
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Gỡ bỏ khi nộp bài
+    Graph G;
+    int n, m, u, v;
+
+    if (scanf("%d%d", &n, &m) != 2) return 0;
+    init_graph(&G, n);
+
+    for (int e = 0; e < m; e++) {
+        scanf("%d%d", &u, &v);
+        add_edge(&G, u, v);
+    }
+
+    for (int i = 1; i <= n; i++) visited[i] = 0;
+
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i]) {
+            dfs(&G, i, -1);
+            if (has_cycle) break;
+        }
+    }
+
+    if (has_cycle) printf("YES\n");
+    else printf("NO\n");
+
+    return 0;
+}
