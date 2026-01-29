@@ -1,0 +1,16 @@
+void add_edge(Graph* G, int e, int x, int y) {
+    // Kiểm tra tính hợp lệ của cung e và các đỉnh x, y
+    // Giả sử chỉ số cung từ 1 đến m, chỉ số đỉnh từ 1 đến n
+    if (e < 1 || e > G->m || x < 1 || x > G->n || y < 1 || y > G->n) {
+        return;
+    }
+
+    if (x == y) {
+        // Trường hợp khuyên e = (x, x)
+        G->A[x][e] = 2;
+    } else {
+        // Trường hợp cung thông thường nối hai đỉnh khác nhau
+        G->A[x][e] = 1;
+        G->A[y][e] = 1;
+    }
+}
