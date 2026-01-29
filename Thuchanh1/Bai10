@@ -1,0 +1,18 @@
+int deg3(Graph* G) {
+    int count_deg3 = 0;
+    // Duyệt qua từng đỉnh i từ 1 đến n
+    for (int i = 1; i <= G->n; i++) {
+        int current_deg = 0;
+        // Tính bậc của đỉnh i bằng cách đếm các kết nối trên dòng i
+        for (int j = 1; j <= G->n; j++) {
+            if (G->A[i][j] != 0) {
+                current_deg++;
+            }
+        }
+        // Nếu bậc đúng bằng 3 thì tăng biến đếm
+        if (current_deg == 3) {
+            count_deg3++;
+        }
+    }
+    return count_deg3;
+}
