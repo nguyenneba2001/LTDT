@@ -1,0 +1,80 @@
+#include <stdio.h>
+
+#define MAXN 1001
+
+int n, m;
+int adj[MAXN][MAXN];
+int visited[MAXN];
+int parent[MAXN];
+int queue[MAXN];
+int front = 0, rear = 0;
+
+// Các hàm bổ trợ cho hàng đợi (Queue)
+void push(int v) {
+    queue[rear++] = v;
+}
+
+int pop() {
+    return queue[front++];
+}
+
+int is_empty() {
+    return front == rear;
+}
+
+void bfs(int start) {
+    push(start);
+    visited[start] = 1;
+    parent[start] = 0;
+
+    while (!is_empty()) {
+        int u = pop();
+
+        // Duyệt các đỉnh kề v theo thứ tự tăng dần
+        for (int v = 1; v <= n; v++) {
+            if (adj[u][v] == 1 && !visited[v]) {
+                visited[v] = 1;
+                parent[v] = u;
+                push(v);
+            }
+        }
+    }
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Bỏ comment khi chạy thử local
+
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    // Khởi tạo các mảng
+    for (int i = 1; i <= n; i++) {
+        visited[i] = 0;
+        parent[i] = 0;
+        for (int j = 1; j <= n; j++) {
+            adj[i][j] = 0;
+        }
+    }
+
+    // Đọc cạnh của đồ thị
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        if (scanf("%d %d", &u, &v) == 2) {
+            adj[u][v] = 1;
+            adj[v][u] = 1;
+        }
+    }
+
+    // Duyệt BFS cho mọi thành phần liên thông
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i]) {
+            bfs(i);
+        }
+    }
+
+    // In kết quả: <đỉnh> <đỉnh cha>
+    for (int i = 1; i <= n; i++) {
+        printf("%d %d\n", i, parent[i]);
+    }
+
+    return 0;
+}
