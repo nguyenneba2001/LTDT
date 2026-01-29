@@ -1,0 +1,49 @@
+#include <stdio.h>
+
+#define MAX_N 100
+
+int main() {
+    int n, m, u, v;
+    int adj[MAX_N][MAX_N] = {0};
+    int in_degree[MAX_N] = {0}; // Lưu số lượng thức uống tiên quyết của mỗi loại
+
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    for (int i = 0; i < m; i++) {
+        scanf("%d %d", &u, &v);
+        adj[u][v] = 1; 
+        in_degree[v]++; // Thêm một điều kiện tiên quyết cho v
+    }
+
+    int queue[MAX_N];
+    int front = 0, rear = 0;
+    int count = 0;
+
+    // Tìm các loại thức uống không cần điều kiện tiên quyết (bán bậc vào = 0)
+    for (int i = 1; i <= n; i++) {
+        if (in_degree[i] == 0) {
+            queue[rear++] = i;
+        }
+    }
+
+    // Thuật toán Kahn: Xóa dần các đỉnh có bán bậc vào bằng 0
+    while (front < rear) {
+        int u = queue[front++];
+        count++; // Đã uống được loại này
+
+        for (int v = 1; v <= n; v++) {
+            if (adj[u][v]) {
+                in_degree[v]--; // u đã uống xong, v bớt đi 1 điều kiện
+                if (in_degree[v] == 0) {
+                    queue[rear++] = v;
+                }
+            }
+        }
+    }
+
+    // Nếu số loại uống được bằng tổng số loại nước thì SAY
+    if (count == n) printf("YES\n");
+    else printf("NO\n");
+
+    return 0;
+}
