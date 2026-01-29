@@ -1,0 +1,41 @@
+#include <stdio.h>
+
+#define MAX_N 100
+
+typedef struct {
+    int n, m;
+    int A[MAX_N][MAX_N];
+} Graph;
+
+void init_graph(Graph* G, int n) {
+    G->n = n;
+    G->m = 0;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            G->A[i][j] = 0;
+}
+
+int visited[MAX_N];
+
+void dfs(Graph* G, int u) {
+    visited[u] = 1;
+    for (int v = 1; v <= G->n; v++) {
+        if (G->A[u][v] == 1 && !visited[v]) {
+            dfs(G, v);
+        }
+    }
+}
+
+int connected_components(Graph* G) {
+    int count = 0;
+    for (int i = 1; i <= G->n; i++) {
+        visited[i] = 0;
+    }
+    for (int i = 1; i <= G->n; i++) {
+        if (!visited[i]) {
+            count++;
+            dfs(G, i);
+        }
+    }
+    return count;
+}
