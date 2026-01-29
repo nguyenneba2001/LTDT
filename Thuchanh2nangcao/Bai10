@@ -1,0 +1,69 @@
+#include <stdio.h>
+
+#define MAX_N 100
+
+typedef struct {
+    int n, m;
+    int A[MAX_N][MAX_N];
+} Graph;
+
+void init_graph(Graph* G, int n) {
+    G->n = n;
+    G->m = 0;
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= n; j++)
+            G->A[i][j] = 0;
+}
+
+void add_edge(Graph* G, int u, int v) {
+    G->A[u][v] = 1;
+    G->A[v][u] = 1;
+}
+
+int visited[MAX_N];
+int count = 0;
+
+void dfs(Graph* G, int u) {
+    visited[u] = 1;
+    count++; // Đếm số đỉnh đã thăm
+    for (int v = 1; v <= G->n; v++) {
+        if (G->A[u][v] && !visited[v]) {
+            dfs(G, v);
+        }
+    }
+}
+
+int main() {
+    // freopen("dt.txt", "r", stdin); // Gỡ bỏ khi nộp bài
+    Graph G;
+    int n, m, u, v;
+
+    if (scanf("%d%d", &n, &m) != 2) return 0;
+    init_graph(&G, n);
+
+    for (int e = 0; e < m; e++) {
+        scanf("%d%d", &u, &v);
+        add_edge(&G, u, v);
+    }
+
+    // Nếu đồ thị không có đỉnh nào
+    if (n == 0) {
+        printf("connected\n");
+        return 0;
+    }
+
+    // Khởi tạo mảng visited
+    for (int i = 1; i <= n; i++) visited[i] = 0;
+
+    // Duyệt từ đỉnh 1
+    dfs(&G, 1);
+
+    // Kiểm tra số đỉnh đã thăm có bằng n không
+    if (count == n) {
+        printf("connected\n");
+    } else {
+        printf("unconnected\n");
+    }
+
+    return 0;
+}
