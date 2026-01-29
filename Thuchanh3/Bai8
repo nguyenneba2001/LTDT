@@ -1,0 +1,50 @@
+#include <stdio.h>
+
+#define MAX_N 101
+#define INF 999999
+
+int main() {
+    int n, m, u, v, w;
+    int dist[MAX_N][MAX_N];
+
+    // Đọc số đỉnh và số cung
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    // Bước 1: Khởi tạo ma trận
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (i == j) dist[i][j] = 0;
+            else dist[i][j] = INF;
+        }
+    }
+
+    // Bước 2: Nhập các cung
+    for (int i = 0; i < m; i++) {
+        scanf("%d %d %d", &u, &v, &w);
+        if (w < dist[u][v]) dist[u][v] = w;
+    }
+
+    // Bước 3: Thuật toán Floyd-Warshall
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (dist[i][k] != INF && dist[k][j] != INF) {
+                    if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                    }
+                }
+            }
+        }
+    }
+
+    // Bước 4: In kết quả
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            printf("%d -> %d: ", i, j);
+            if (dist[i][j] >= INF) printf("oo\n");
+            else printf("%d\n", dist[i][j]);
+        }
+    }
+
+    return 0;
+}
