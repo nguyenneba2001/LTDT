@@ -1,0 +1,71 @@
+#include <stdio.h>
+
+#define MAX_N 1001
+
+int main() {
+    int n, u_query, t_query;
+    int duration[MAX_N];
+    int es[MAX_N] = {0};
+    int ls[MAX_N];
+    
+    // Lưu ma trận kề để biết công việc sau và công việc trước
+    // Dùng mảng 2 chiều tĩnh (giới hạn 1000 công việc)
+    short has_pre[MAX_N][MAX_N] = {0}; 
+    short has_next[MAX_N][MAX_N] = {0};
+    int num_pre[MAX_N] = {0};
+    int num_next[MAX_N] = {0};
+
+    if (scanf("%d", &n) != 1) return 0;
+
+    for (int i = 1; i <= n; i++) {
+        scanf("%d", &duration[i]);
+        int pre;
+        while (scanf("%d", &pre) && pre != 0) {
+            has_pre[i][num_pre[i]++] = pre;
+            has_next[pre][num_next[pre]++] = i;
+        }
+    }
+    scanf("%d %d", &u_query, &t_query);
+
+    // 1. Tính thời điểm bắt đầu SỚM NHẤT (ES)
+    for (int i = 1; i <= n; i++) {
+        int max_val = 0;
+        for (int j = 0; j < num_pre[i]; j++) {
+            int p = has_pre[i][j];
+            if (es[p] + duration[p] > max_val)
+                max_val = es[p] + duration[p];
+        }
+        es[i] = max_val;
+    }
+
+    // 2. Tìm thời gian hoàn thành dự án sớm nhất
+    int project_finish = 0;
+    for (int i = 1; i <= n; i++) {
+        if (es[i] + duration[i] > project_finish)
+            project_finish = es[i] + duration[i];
+    }
+
+    // 3. Tính thời điểm bắt đầu TRỄ NHẤT (LS)
+    for (int i = n; i >= 1; i--) {
+        if (num_next[i] == 0) {
+            ls[i] = project_finish - duration[i];
+        } else {
+            int min_val = project_finish;
+            for (int j = 0; j < num_next[i]; j++) {
+                int nxt = has_next[i][j];
+                if (ls[nxt] < min_val)
+                    min_val = ls[nxt];
+            }
+            ls[i] = min_val - duration[i];
+        }
+    }
+
+    // 4. Kiểm tra điều kiện và xuất kết quả
+    if (t_query >= es[u_query] && t_query <= ls[u_query]) {
+        printf("YES\n");
+    } else {
+        printf("NO\n");
+    }
+
+    return 0;
+}
