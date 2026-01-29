@@ -1,0 +1,67 @@
+#include <stdio.h>
+
+#define MAX_N 105
+#define INF 1000000000
+
+int main() {
+    int n, m;
+    int W[MAX_N][MAX_N];
+    long long pi[MAX_N], cnt[MAX_N];
+    int mark[MAX_N];
+
+    if (scanf("%d %d", &n, &m) != 2) return 0;
+
+    // Khởi tạo đồ thị và mảng bổ trợ
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) W[i][j] = INF;
+        pi[i] = INF;
+        cnt[i] = 0;
+        mark[i] = 0;
+    }
+
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        if (w < W[u][v]) W[u][v] = W[v][u] = w;
+        else if (w == W[u][v]) ; // Đồ thị đơn, không cần xử lý đa cung nếu đề đã cho
+    }
+
+    pi[1] = 0;
+    cnt[1] = 1;
+
+    for (int i = 1; i <= n; i++) {
+        int u = -1;
+        long long min_pi = INF;
+
+        // Tìm đỉnh u chưa mark có pi nhỏ nhất
+        for (int j = 1; j <= n; j++) {
+            if (!mark[j] && pi[j] < min_pi) {
+                min_pi = pi[j];
+                u = j;
+            }
+        }
+
+        if (u == -1 || pi[u] == INF) break;
+        mark[u] = 1;
+
+        // Cập nhật các đỉnh v kề với u
+        for (int v = 1; v <= n; v++) {
+            if (W[u][v] != INF) {
+                if (pi[u] + W[u][v] < pi[v]) {
+                    pi[v] = pi[u] + W[u][v];
+                    cnt[v] = cnt[u];
+                } else if (pi[u] + W[u][v] == pi[v]) {
+                    cnt[v] += cnt[u];
+                }
+            }
+        }
+    }
+
+    if (pi[n] == INF) {
+        printf("-1 0\n");
+    } else {
+        printf("%lld %lld\n", pi[n], cnt[n]);
+    }
+
+    return 0;
+}
