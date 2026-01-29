@@ -1,0 +1,12 @@
+void add_edge(Graph* G, int e, int x, int y) {
+    // Kiểm tra tính hợp lệ của chỉ số cung và chỉ số đỉnh
+    // Giả sử đỉnh và cung bắt đầu đánh số từ 1 đến n và m
+    if (e < 1 || e > G->m || x < 1 || x > G->n || y < 1 || y > G->n) {
+        return;
+    }
+
+    // Vì đồ thị không chứa khuyên nên x luôn khác y
+    // Đánh dấu cung e đi qua đỉnh x và đỉnh y
+    G->A[x][e] = 1;
+    G->A[y][e] = 1;
+}
