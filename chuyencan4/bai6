@@ -1,0 +1,88 @@
+#include <stdio.h>
+
+#define MAXN 105
+#define MAXM 505
+#define INF 1000000000
+
+int n, m;
+int u[MAXM], v[MAXM], w[MAXM];
+int used[MAXN];
+
+int mst_u[MAXN], mst_v[MAXN], mst_w[MAXN];
+int mst_cnt;
+
+int main() {
+    int i, e;
+    int total_weight;
+    int min_w, x, y, idx;
+
+    scanf("%d%d", &n, &m);
+
+    for (e = 0; e < m; e++) {
+        scanf("%d%d%d", &u[e], &v[e], &w[e]);
+    }
+
+    for (i = 1; i <= n; i++)
+        used[i] = 0;
+
+    used[1] = 1;          /* bắt đầu từ đỉnh 1 */
+    mst_cnt = 0;
+    total_weight = 0;
+
+    while (mst_cnt < n - 1) {
+        min_w = INF;
+        x = -1;
+        y = -1;
+
+        for (e = 0; e < m; e++) {
+            if (used[u[e]] && !used[v[e]] && w[e] < min_w) {
+                min_w = w[e];
+                x = u[e];
+                y = v[e];
+            }
+            if (used[v[e]] && !used[u[e]] && w[e] < min_w) {
+                min_w = w[e];
+                x = v[e];
+                y = u[e];
+            }
+        }
+
+        if (x == -1) break;   /* đồ thị không liên thông */
+
+        used[y] = 1;
+        total_weight += min_w;
+
+        /* lưu cạnh MST */
+        if (x < y) {
+            mst_u[mst_cnt] = x;
+            mst_v[mst_cnt] = y;
+        } else {
+            mst_u[mst_cnt] = y;
+            mst_v[mst_cnt] = x;
+        }
+        mst_w[mst_cnt] = min_w;
+        mst_cnt++;
+    }
+
+    /* sắp xếp các cạnh MST */
+    for (i = 0; i < mst_cnt - 1; i++) {
+        for (idx = i + 1; idx < mst_cnt; idx++) {
+            if (mst_u[i] > mst_u[idx] ||
+               (mst_u[i] == mst_u[idx] && mst_v[i] > mst_v[idx])) {
+
+                int tu, tv, tw;
+                tu = mst_u[i]; tv = mst_v[i]; tw = mst_w[i];
+                mst_u[i] = mst_u[idx]; mst_v[i] = mst_v[idx]; mst_w[i] = mst_w[idx];
+                mst_u[idx] = tu; mst_v[idx] = tv; mst_w[idx] = tw;
+            }
+        }
+    }
+
+    /* in kết quả */
+    printf("%d\n", total_weight);
+    for (i = 0; i < mst_cnt; i++) {
+        printf("%d %d %d\n", mst_u[i], mst_v[i], mst_w[i]);
+    }
+
+    return 0;
+}
