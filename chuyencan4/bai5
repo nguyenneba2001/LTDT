@@ -1,0 +1,60 @@
+#include <stdio.h>
+
+#define MAXN 105
+#define MAXM 1005
+
+int n, m;
+int u[MAXM], v[MAXM];
+int indeg[MAXN];
+int queue[MAXN];
+int result[MAXN];
+
+int main() {
+    int i, e;
+    int front, rear;
+    int x, y, idx;
+
+    scanf("%d%d", &n, &m);
+
+    for (i = 1; i <= n; i++)
+        indeg[i] = 0;
+
+    for (e = 0; e < m; e++) {
+        scanf("%d%d", &u[e], &v[e]);
+        indeg[v[e]]++;
+    }
+
+    front = 0;
+    rear = 0;
+
+    /* đưa các đỉnh indeg = 0 vào queue */
+    for (i = 1; i <= n; i++) {
+        if (indeg[i] == 0)
+            queue[rear++] = i;
+    }
+
+    idx = 0;
+
+    /* topo sort */
+    while (front < rear) {
+        x = queue[front++];
+        result[idx++] = x;
+
+        for (e = 0; e < m; e++) {
+            if (u[e] == x) {
+                y = v[e];
+                indeg[y]--;
+                if (indeg[y] == 0)
+                    queue[rear++] = y;
+            }
+        }
+    }
+
+    /* in kết quả */
+    for (i = 0; i < n; i++) {
+        printf("%d", result[i]);
+        if (i < n - 1) printf(" ");
+    }
+
+    return 0;
+}
