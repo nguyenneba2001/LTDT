@@ -1,59 +1,88 @@
 #include <stdio.h>
 
-#define MAX_N 101
-#define INF 1000000
+#define INF 1000000000
+
+typedef struct {
+    int r, c, cost;
+} Node;
+
+Node heap[1000005];
+int heapSize = 0;
+
+void swap(Node *a, Node *b) {
+    Node temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void push(int r, int c, int cost) {
+    heapSize++;
+    heap[heapSize].r = r;
+    heap[heapSize].c = c;
+    heap[heapSize].cost = cost;
+    int i = heapSize;
+    while (i > 1 && heap[i].cost < heap[i / 2].cost) {
+        swap(&heap[i], &heap[i / 2]);
+        i /= 2;
+    }
+}
+
+Node pop() {
+    Node top = heap[1];
+    heap[1] = heap[heapSize];
+    heapSize--;
+    int i = 1;
+    while (i * 2 <= heapSize) {
+        int child = i * 2;
+        if (child + 1 <= heapSize && heap[child + 1].cost < heap[child].cost) {
+            child++;
+        }
+        if (heap[i].cost <= heap[child].cost) break;
+        swap(&heap[i], &heap[child]);
+        i = child;
+    }
+    return top;
+}
+
+int a[505][505];
+int d[505][505];
 
 int main() {
-    int n, m, s, t;
-    int W[MAX_N][MAX_N];
-    int pi[MAX_N], mark[MAX_N];
+    int M, N;
+    if (scanf("%d %d", &M, &N) != 2) return 0;
 
-    if (scanf("%d %d", &n, &m) != 2) return 0;
-
-    // Khởi tạo đồ thị
-    for (int i = 1; i <= n; i++) {
-        for (int j = 1; j <= n; j++) W[i][j] = INF;
-        W[i][i] = 0;
-        pi[i] = INF;
-        mark[i] = 0;
-    }
-
-    for (int i = 0; i < m; i++) {
-        int u, v, d;
-        scanf("%d %d %d", &u, &v, &d);
-        if (d < W[u][v]) { // Đề phòng đa cung
-            W[u][v] = W[v][u] = d;
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            scanf("%d", &a[i][j]);
+            d[i][j] = INF;
         }
     }
 
-    scanf("%d %d", &s, &t);
+    int dr[] = {-1, 1, 0, 0};
+    int dc[] = {0, 0, -1, 1};
 
-    // Thuật toán Dijkstra
-    pi[s] = 0;
-    for (int i = 1; i <= n; i++) {
-        int u = -1, min_d = INF;
-        // Tìm đỉnh u chưa mark có pi nhỏ nhất
-        for (int j = 1; j <= n; j++) {
-            if (!mark[j] && pi[j] < min_d) {
-                min_d = pi[j];
-                u = j;
-            }
-        }
+    d[0][0] = a[0][0];
+    push(0, 0, d[0][0]);
 
-        if (u == -1 || u == t) break;
-        mark[u] = 1;
+    while (heapSize > 0) {
+        Node curr = pop();
 
-        // Cập nhật láng giềng của u
-        for (int v = 1; v <= n; v++) {
-            if (!mark[v] && W[u][v] != INF) {
-                if (pi[u] + W[u][v] < pi[v]) {
-                    pi[v] = pi[u] + W[u][v];
+        if (curr.cost > d[curr.r][curr.c]) continue;
+        if (curr.r == M - 1 && curr.c == N - 1) break;
+
+        for (int i = 0; i < 4; i++) {
+            int nr = curr.r + dr[i];
+            int nc = curr.c + dc[i];
+
+            if (nr >= 0 && nr < M && nc >= 0 && nc < N) {
+                if (d[curr.r][curr.c] + a[nr][nc] < d[nr][nc]) {
+                    d[nr][nc] = d[curr.r][curr.c] + a[nr][nc];
+                    push(nr, nc, d[nr][nc]);
                 }
             }
         }
     }
 
-    printf("%d\n", pi[t]);
-
+    printf("%d", d[M - 1][N - 1]);
     return 0;
 }
